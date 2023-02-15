@@ -1,0 +1,10 @@
+[{
+    "endpoint": "/ab*cd",
+    "type":"PUT",
+    "response": "{\n  \"name\": \"Teclis\",\n  \"lastName\": \"\",\n  \"age\": 250,\n  \"state\": \"Ulthan\"\n}",
+    "statusCode": 400,
+    "headers":[{
+        "key" :"x-auth-token",
+        "value": "Sarbajit"
+    }]
+}]
