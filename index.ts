@@ -8,7 +8,7 @@ dotenv.config();
 
 const app: Express = express();
 app.use(cors())
-const port = process.env.PORT;
+const port = Number(process.env.PORT) || 5000;
 const dbPath =  join(process.cwd() , 'server')
 const filePath = join(dbPath, 'routes.json')
 
@@ -53,8 +53,8 @@ routes.map((item) => {
   }
 })
 
-app.listen(5000, () => {
-  console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+app.listen(port, () => {
+  console.log(`⚡️[db]: Database running at http://localhost:${port}`);
   console.log(dbPath)
   console.log(filePath)
 });
