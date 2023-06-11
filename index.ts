@@ -1,60 +1,35 @@
-import express, { Express, Response } from 'express';
-import dotenv from 'dotenv';
-import { join } from 'path';
-import * as fs from 'fs';
-import { RouteDTO } from './RouteDTO';
-var cors = require('cors')
+import express, { Express } from "express";
+import dotenv from "dotenv";
+import { HttpType } from "@prisma/client";
+import prisma from "./lib/prisma";
+var cors = require("cors");
 dotenv.config();
-
 const app: Express = express();
-app.use(cors())
+app.use(cors());
 const port = Number(process.env.PORT) || 5000;
-const dbPath =  join(process.cwd() , 'server')
-const filePath = join(dbPath, 'routes.json')
-
-let routes: RouteDTO[] = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf-8' }))
- 
- const handleheaders = ( response: Response , route: RouteDTO ) => {
-    if (route.headers != null) {
-      route.headers.map((header) => {
-        response.setHeader(header.key, header.value)
-      })
-    }
- }
-
-routes.map((item) => {
-  if (item.type === 'GET'){
-    app.get(item.endpoint, (req, res) => {
-      handleheaders(res, item)
-      return res.status(item.statusCode).json(JSON.parse(item.response));
-    })
-  }  else if (item.type === 'POST') {
-    app.post(item.endpoint,(req, res) =>{
-      handleheaders(res, item)
-      return res.status(item.statusCode).json(JSON.parse(item.response));
-    })
-  } else if (item.type === 'PUT') {
-    app.put(item.endpoint,(req, res) =>{
-      handleheaders(res, item)
-      return res.status(item.statusCode).json(JSON.parse(item.response));
-    })
-  } else if (item.type === 'PATCH') {
-    app.patch(item.endpoint,(req, res) =>{
-      handleheaders(res, item)
-      return res.status(item.statusCode).json(JSON.parse(item.response));
-    })
-  } else if (item.type === 'DELETE') {
-    app.delete(item.endpoint,(req, res) =>{
-      handleheaders(res, item)
-      return  res.status(item.statusCode).json(JSON.parse(item.response));
-    })
-  } else {
-    console.log("Invalid HTTP Request type")
+app.use("*", async (req, res, next) => {
+  try {
+  console.log(`Base Request URL: ${req.baseUrl}`);
+  const requestMethod: HttpType = HttpType[req.method as keyof typeof HttpType];
+    const response = await prisma.post.findFirstOrThrow({
+      where: {
+        endpoint: {
+          contains: req.baseUrl,
+        },
+        type: requestMethod
+      },
+    });
+    res.status(response.statusCode).json(JSON.parse(response.response));
+    next();
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Mock does not exist",
+    });
+    next();
   }
-})
+});
 
 app.listen(port, () => {
   console.log(`⚡️[db]: Database running at http://localhost:${port}`);
-  console.log(dbPath)
-  console.log(filePath)
 });
