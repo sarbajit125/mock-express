@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
 }
 
 datasource db {
@@ -12,7 +13,7 @@ model CustomHeaders {
   key    String
   value  String
   mockId String
-  Post   Post   @relation(fields: [mockId], references: [id])
+  Post   Post   @relation(fields: [mockId], references: [id], onDelete: Cascade)
 }
 
 model Post {
@@ -23,8 +24,9 @@ model Post {
   type          HttpType
   statusCode    Int
   domainName    String
+  mockURL       String
   CustomHeaders CustomHeaders[]
-  domains       domains         @relation(fields: [domainName], references: [name])
+  domains       domains         @relation(fields: [domainName], references: [name], onDelete: Cascade)
 }
 
 model domains {
